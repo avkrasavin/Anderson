@@ -25,4 +25,20 @@ def basis(m,n):
                 break
             j -= 1
     return b
+def limit_basis(m,n,n_max):
+    '''Возвращает базис для Бозе-статистики с ограничением числа частиц на узле. 
+    m - число узлов, n - число частиц, n_max - максимальное число частиц на узле.'''
+    # Размерность базиса
+    R = fact(n + m - 1)/fact(n)/fact(m - 1)
+    b = basis(m,n)
+    f = np.zeros((R,m))
+    j = 0
+    # Откиддываем функции, в которых на узлах частиц больше n_max
+    for i in range(b.shape[0]):
+        if any(b[i] > n_max): 
+            continue
+        else:
+            f[j] = b[i]
+            j += 1
+    return f[:j]
 
