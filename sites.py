@@ -8,17 +8,8 @@ class site(object):
         self.type=site_type
         if self.type=='boson':
             self.n_boson_max=n_boson_max
-
-    def set_on_site_parametrs(self, U,mu):
-        self.U=U
-        self.mu=mu
-        
-    def set_long_range_parametrs(self,t,V):
-        self.t=t
-        self.V=V
-        
-    def scatering_parametrs(self,gamma):
-        self.gamma=gamma
+        self.t=[];self.V=[];self.gamma=[]
+        self.e=0;self.U=0
         
     def __repr__(self):
         return "%s %s \n" % (self.type,self.number)
