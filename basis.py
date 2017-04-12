@@ -29,7 +29,7 @@ class Fermion_Bose_basis(object):
         for i in xrange(self.size):
             self.spin_up[i,:] = spin_basis[i%L,:]
             self.spin_down[i,:]=spin_basis[i//L%L,:]
-            self.boson[i,:]=boson_basis[i//(M*L),:]
+            self.boson[i,:]=boson_basis[i//(L*L),:]
             # print self.spin_up[i,:],self.spin_down[i,:],self.boson[i,:]
 
         self.full=np.hstack((self.spin_up,self.spin_down,self.boson))
