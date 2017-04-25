@@ -95,7 +95,7 @@ def get_start_parametrs(U, mu, t, V):
     for i in xrange(Nf / Nc): bounds.append((-4 * t, 4 * t))
 
     parametrs = []
-    for i in xrange(Nc):
+    for i in xrange(Nc-1):
         p_fermion = 2 * np.random.random(1 + 2 * Nf / Nc) - 1
         G0_real = G0_M[:, i, i]
 
@@ -105,6 +105,7 @@ def get_start_parametrs(U, mu, t, V):
 
         p_fermion = fmin_l_bfgs_b(error_G0, x0=p_fermion, approx_grad=True, disp=True, bounds=bounds)
         parametrs.append(p_fermion[0])
+    parametrs.append(p_fermion[0])
 
     em = np.zeros((Nc, Nc))
     h = np.zeros((Nc, Nf))
@@ -147,7 +148,7 @@ def get_start_parametrs(U, mu, t, V):
     for i in xrange(Nb / Nc): bounds.append((0, 8 * V))
 
     boson_parametrs = []
-    for i in xrange(Nc):
+    for i in xrange(Nc-1):
         p_boson = 2 * np.random.random(1 + 2 * Nb / Nc)
         P0_real = P0_M[:, i, i]
 
@@ -157,6 +158,7 @@ def get_start_parametrs(U, mu, t, V):
 
         p_boson = fmin_l_bfgs_b(error_P0, x0=p_boson, approx_grad=True, disp=True, bounds=bounds)
         boson_parametrs.append(p_boson[0])
+    boson_parametrs.append(p_boson[0])
 
     en = np.zeros((Nc, Nc))
     y = np.zeros((Nc, Nb))
