@@ -10,6 +10,10 @@ Nf = 4
 Nb = 4
 L = int(np.sqrt(Nc))
 T = np.array([[1, 1, 1, 1], [1, -1, -1, 1], [1, -1, 1, -1], [1, 1, -1, -1]]) / 2.
+t = 1
+V = 1
+mu = 0
+U = 8
 
 # k-meshgrid parametrs
 N = 10000
@@ -26,6 +30,7 @@ kx = np.delete(kx, 0)
 ky = np.linspace(-2 * pi, 2 * pi, 2 * int(np.sqrt(N)) + 1)
 ky = np.delete(ky, 0)
 kx, ky = np.meshgrid(kx, ky)
+E_k = -2 * t * (np.cos(kx) + np.cos(ky))
 
 # boson q-space
 qx = np.linspace(-2 * pi, 2 * pi, 2 * int(np.sqrt(N)) + 1)
@@ -33,6 +38,7 @@ qx = np.delete(qx, 0)
 qy = np.linspace(-2 * pi, 2 * pi, 2 * int(np.sqrt(N)) + 1)
 qy = np.delete(qy, 0)
 qx, qy = np.meshgrid(qx, qy)
+V_q = 4 * V - 2 * V * (np.cos(qx) + np.cos(qy))
 
 # cluster K-space
 KX = np.linspace(-pi, pi, L + 1)
@@ -43,14 +49,10 @@ KY = np.delete(KY, 0)
 KX, KY = np.meshgrid(KX, KY)
 
 
-def get_start_parametrs(U, mu, t, V):
-    E_k = -2 * t * (np.cos(kx) + np.cos(ky))
-    V_q = 4 * V - 2 * V * (np.cos(qx) + np.cos(qy))
+def get_start_GFs():
     # Patching
     G0_K = np.empty((matsubara.size, KX.shape[0], KX.shape[1]), dtype=np.complex128)
-    E_K = np.empty((KX.shape[0], KX.shape[1]))
     P0_K = np.empty((matsubara.size, KX.shape[0], KX.shape[1]), dtype=np.complex128)
-    V_K = np.empty((KX.shape[0], KX.shape[1]))
     for i in xrange(L):
         for j in xrange(L):
             indexes_k = ((kx > (KX[i, j] - dK / 2.)) & (kx < (KX[i, j] + dK / 2.))) & (
@@ -60,9 +62,10 @@ def get_start_parametrs(U, mu, t, V):
             for k in xrange(matsubara.size):
                 G0_K[k, i, j] = Nc * np.sum((1j * matsubara[k] + mu - E_k[indexes_k]) ** (-1)) / N
             P0_K[:, i, j] = Nc * np.sum(V_q[indexes_q]) / N
-            E_K[i, j] = Nc * np.sum(E_k[indexes_k]) / N
-            V_K[i, j] = Nc * np.sum(V_q[indexes_q]) / N
+    return G0_K, P0_K
 
+
+def get_parametrs(G0_K, P0_K):
     # Fitting fermions
     G0_R = np.zeros_like(G0_K)
     for i in xrange(matsubara.size):
@@ -95,7 +98,7 @@ def get_start_parametrs(U, mu, t, V):
     for i in xrange(Nf / Nc): bounds.append((-4 * t, 4 * t))
 
     parametrs = []
-    for i in xrange(Nc-1):
+    for i in xrange(Nc - 1):
         p_fermion = 2 * np.random.random(1 + 2 * Nf / Nc) - 1
         G0_real = G0_M[:, i, i]
 
@@ -148,7 +151,7 @@ def get_start_parametrs(U, mu, t, V):
     for i in xrange(Nb / Nc): bounds.append((0, 8 * V))
 
     boson_parametrs = []
-    for i in xrange(Nc-1):
+    for i in xrange(Nc - 1):
         p_boson = 2 * np.random.random(1 + 2 * Nb / Nc)
         P0_real = P0_M[:, i, i]
 
@@ -177,7 +180,35 @@ def get_start_parametrs(U, mu, t, V):
     delta_U = np.round((inv(T).dot(en)).dot(T), 2)[0, 0]
     delta_mu = np.round((inv(T).dot(em)).dot(T), 2)[0, 0]
 
-    return U + delta_U, mu + delta_mu, t_renorm, V_renorm, hybridization, gamma,ek,eq
+    return U + delta_U, mu + delta_mu, t_renorm, V_renorm, hybridization, gamma, ek, eq, G0_K, P0_K
 
-def DCA_loop(U,mu,t,V,G,P):
-    pass
+
+def DCA_loop(G_K, P_K, G0_K, P0_K):
+    SE_K = np.zeros_like(G0_K)
+    PE_K = np.zeros_like(P0_K)
+    for i in xrange(L):
+        for j in xrange(L):
+            SE_K[:, i, j] = G0_K[:, i, j] ** (-1) - G_K[:, i, j] ** (-1)
+            PE_K[:, i, j] = P0_K[:, i, j] ** (-1) - P_K[:, i, j] ** (-1)
+
+    G_K_new = np.zeros_like(G0_K)
+    P_K_new = np.zeros_like(P0_K)
+
+    for i in xrange(L):
+        for j in xrange(L):
+            indexes_k = ((kx > (KX[i, j] - dK / 2.)) & (kx < (KX[i, j] + dK / 2.))) & (
+                (ky > (KY[i, j] - dK / 2.)) & (ky < (KY[i, j] + dK / 2.)))
+            indexes_q = ((qx > (KX[i, j] - dK / 2.)) & (qx < (KX[i, j] + dK / 2.))) & (
+                (qy > (KY[i, j] - dK / 2.)) & (qy < (KY[i, j] + dK / 2.)))
+            for k in xrange(matsubara.size):
+                G_K_new[k, i, j] = Nc * np.sum((1j * matsubara[k] + mu - E_k[indexes_k] - SE_K[k, i, j]) ** (-1)) / N
+            P_K_new[:, i, j] = Nc * np.sum((V_q[indexes_q] ** (-1) - PE_K[:, i, j]) ** (-1)) / N
+
+    G0_K_new = np.zeros_like(G0_K)
+    P0_K_new = np.zeros_like(P0_K)
+    for i in xrange(L):
+        for j in xrange(L):
+            G0_K_new = (G_K_new[:, i, j] ** (-1) + SE_K[:, i, j]) ** (-1)
+            P0_K_new = (P_K_new[:, i, j] ** (-1) + PE_K[:, i, j]) ** (-1)
+
+    return get_parametrs(G0_K_new, P0_K_new)
