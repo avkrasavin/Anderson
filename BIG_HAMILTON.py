@@ -1,3 +1,6 @@
+# coding: utf-8
+
+
 import numpy as np
 from scipy.sparse import coo_matrix
 import matplotlib.pyplot as plt
@@ -5,7 +8,6 @@ from math import factorial as fact
 import itertools
 import progressbar
 import copy
-%matplotlib inline
 
 class Basis:
     
