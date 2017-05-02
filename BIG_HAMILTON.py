@@ -221,7 +221,7 @@ class Hamiltonian(Basis):
                     if coef != 0:
                         line[s0: s0+R_bose*R_down] = range(i,i+R_bose*R_down)
                         col[s0: s0+R_bose*R_down] = range(index,index+R_bose*R_down)
-                        data[s0: s0+R_bose*R_down] = coef*t_d*self.sign(p,j,basis[i])
+                        data[s0: s0+R_bose*R_down] = coef*self.t_d*self.sign(p,j,basis[i])
                         s0 += R_bose*R_down
                                                     
                     # перескок с кластера на ванну
@@ -230,7 +230,7 @@ class Hamiltonian(Basis):
                     if coef != 0:
                         line[s0: s0+R_bose*R_down] = range(i,i+R_bose*R_down)
                         col[s0: s0+R_bose*R_down] = range(index,index+R_bose*R_down)
-                        data[s0: s0+R_bose*R_down] = coef*t_d*self.sign(p,j,basis[i])
+                        data[s0: s0+R_bose*R_down] = coef*self.t_d*self.sign(p,j,basis[i])
                         s0 += R_bose*R_down
                     iks += 1
         bar = progressbar.ProgressBar()
@@ -247,7 +247,7 @@ class Hamiltonian(Basis):
                         for T in range(0,R_bose*R_up*R_down,R_bose*R_down):
                             line[s0: s0+R_bose] = range(i+T,i+T+R_bose)
                             col[s0: s0+R_bose] = range(index+T,index+T+R_bose)
-                            data[s0: s0+R_bose] = coef*t_d*self.sign(p,j,basis[i])
+                            data[s0: s0+R_bose] = coef*self.t_d*self.sign(p,j,basis[i])
                             s0 += R_bose                      
                     # перескок с кластера на ванну
                     coef, function = self.up_down(p,j,basis[i])
@@ -256,7 +256,7 @@ class Hamiltonian(Basis):
                         for T in range(0,R_bose*R_up*R_down,R_bose*R_down):
                             line[s0: s0+R_bose] = range(i+T,i+T+R_bose)
                             col[s0: s0+R_bose] = range(index+T,index+T+R_bose)
-                            data[s0: s0+R_bose] = coef*t_d*self.sign(p,j,basis[i])
+                            data[s0: s0+R_bose] = coef*self.t_d*self.sign(p,j,basis[i])
                             s0 += R_bose
                 iks += 1
         bar = progressbar.ProgressBar()
@@ -301,10 +301,10 @@ class Hamiltonian(Basis):
             # Диагональные элементы
             line[s0:s0+R_bose] = range(i,i+R_bose)  
             col [s0:s0+R_bose] = range(i,i+R_bose)
-            data[s0:s0+R_bose] = sum(self.e_c[:m_c]*basis[i,0:m_c] + self.e_c[m_c:]*basis[i,(m_d+m_c):(m_d+2*m_c)]) + self.U_d*sum(basis[i,m_c:(m_d+m_c)]*basis[i,(m_d+2*m_c):2*(m_d+m_c)]) 
+            data[s0:s0+R_bose] = sum(self.e_c*basis[i,0:m_c] + self.e_c*basis[i,(m_d+m_c):(m_d+2*m_c)]) + self.U_d*sum(basis[i,m_c:(m_d+m_c)]*basis[i,(m_d+2*m_c):2*(m_d+m_c)]) 
             for j in neigbors_d_up.keys():
                 for k in neigbors_d_up[j]:
-                    data[s0+i:s0+i+R_bose] += V_d*(basis[i,j]+basis[i,j+m_c])*(basis[i,k]+basis[i,k+m_c])
+                    data[s0+i:s0+i+R_bose] += self.V_d*(basis[i,j]+basis[i,j+m_c])*(basis[i,k]+basis[i,k+m_c])
             s0 += R_bose
         bar = progressbar.ProgressBar()
         for i in bar(range(R_bose)):
