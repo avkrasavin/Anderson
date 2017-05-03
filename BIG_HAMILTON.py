@@ -112,7 +112,7 @@ class Hamiltonian(Basis):
     def sign(self, left_edge,right_edge,func):
         '''Функция определяет знак перескока'''
         left_edge,right_edge = min(left_edge,right_edge), max(left_edge,right_edge)
-        if sum(func[left_edge+1:right_edge])%2:
+        if sum(func[left_edge+1:right_edge])%2 == 0:
             return 1
         else:
             return -1
