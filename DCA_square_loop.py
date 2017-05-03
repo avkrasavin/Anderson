@@ -94,7 +94,7 @@ def get_parametrs(G0_K, P0_K):
         return G0
 
     bounds = [(-4 * t, 4 * t)]
-    for i in xrange(Nf / Nc): bounds.append((0.05 * t, 4 * t))
+    for i in xrange(Nf / Nc): bounds.append((-4 * t, 4 * t))
     for i in xrange(Nf / Nc): bounds.append((-4 * t, 4 * t))
 
     parametrs = []
@@ -171,16 +171,16 @@ def get_parametrs(G0_K, P0_K):
         y[i, i * Nb / Nc:(i * Nb / Nc + Nb / Nc)] = boson_parametrs[i][1:Nb / Nc + 1]
         eq[i * Nb / Nc:(i * Nb / Nc + Nb / Nc)] = boson_parametrs[i][Nb / Nc + 1:]
 
-    t_renorm = np.round((inv(T).dot(em)).dot(T), 2)[0, 1]
-    V_renorm = np.round((inv(T).dot(en)).dot(T), 2)[0, 1]
+    t_renorm = (inv(T).dot(em)).dot(T)[0, 1]
+    V_renorm = (inv(T).dot(en)).dot(T)[0, 1]
 
-    hybridization = np.round(T.dot(np.abs(h)), 2)[1, :]
-    gamma = np.round(T.dot(np.abs(y)), 2)[1, :]
+    hybridization = T.dot(h)[1, :]
+    gamma = T.dot(y)[1, :]
 
-    delta_U = np.round((inv(T).dot(en)).dot(T), 2)[0, 0]
-    delta_mu = np.round((inv(T).dot(em)).dot(T), 2)[0, 0]
+    delta_U =inv(T).dot(en)[0, 0]
+    delta_mu = (inv(T).dot(em)).dot(T)[0, 0]
 
-    return U + delta_U, mu + delta_mu, t_renorm, V_renorm, hybridization, gamma, ek, eq, G0_K, P0_K
+    return U + delta_U, mu + delta_mu, t_renorm, V_renorm, hybridization, gamma, ek, eq
 
 
 def DCA_loop(G_K, P_K, G0_K, P0_K):
