@@ -85,7 +85,7 @@ class Basis:
                 fb[i*size_2+j] = np.concatenate((mtx_1[i],mtx_2[j]), axis=0)
         return fb
 class Hamiltonian(Basis):
-    def __init__(self,e_c, V_cd, U_d, e_b, gamma_bd, t_d, V_d):
+    def __init__(self,U_d, t_d, V_d, V_cd, gamma_bd,e_c, e_b):
         self.e_c = e_c
         self.V_cd = V_cd
         self.U_d = U_d
@@ -210,11 +210,10 @@ class Hamiltonian(Basis):
         # Перескоки на кластере
         s0 = np.where(data == 0)[0][0]
         for i in bar(range(0,R_bose*R_up*R_down,R_bose*R_down)):
-            iks = 0
             for j in range(m_c,m_c+m_d): # узлы кластера
                 for p in neigbors_d_up[j]: # соседи 
                     # Спин вверх
-                    # перескок с ванны на кластер
+                    
                     coef, function = self.up_down(j,p,basis[i])
                     index = indexes[''.join(map(str,function))]
                     if coef != 0:
@@ -222,21 +221,11 @@ class Hamiltonian(Basis):
                         col[s0: s0+R_bose*R_down] = range(index,index+R_bose*R_down)
                         data[s0: s0+R_bose*R_down] = coef*self.t_d*self.sign(p,j,basis[i])
                         s0 += R_bose*R_down
-                                                    
-                    # перескок с кластера на ванну
-                    coef, function = self.up_down(p,j,basis[i])
-                    index = indexes[''.join(map(str,function))]
-                    if coef != 0:
-                        line[s0: s0+R_bose*R_down] = range(i,i+R_bose*R_down)
-                        col[s0: s0+R_bose*R_down] = range(index,index+R_bose*R_down)
-                        data[s0: s0+R_bose*R_down] = coef*self.t_d*self.sign(p,j,basis[i])
-                        s0 += R_bose*R_down
-                    iks += 1
+                                                  
         bar = progressbar.ProgressBar()
         s0 = np.where(data==0)[0][0]
         # Спин вниз
         for i in bar(range(0,R_bose*R_down,R_bose)):
-            iks = 0
             for j in range(2*m_c+m_d, 2*(m_c + m_d)):
                 for p in neigbors_d_down[j]:
                     # перескок с ванны на кластер
@@ -248,16 +237,6 @@ class Hamiltonian(Basis):
                             col[s0: s0+R_bose] = range(index+T,index+T+R_bose)
                             data[s0: s0+R_bose] = coef*self.t_d*self.sign(p,j,basis[i])
                             s0 += R_bose                      
-                    # перескок с кластера на ванну
-                    coef, function = self.up_down(p,j,basis[i])
-                    index = indexes[''.join(map(str,function))]
-                    if coef != 0:
-                        for T in range(0,R_bose*R_up*R_down,R_bose*R_down):
-                            line[s0: s0+R_bose] = range(i+T,i+T+R_bose)
-                            col[s0: s0+R_bose] = range(index+T,index+T+R_bose)
-                            data[s0: s0+R_bose] = coef*self.t_d*self.sign(p,j,basis[i])
-                            s0 += R_bose
-                iks += 1
         bar = progressbar.ProgressBar()
         print('Complete jumps on the claster')
         # бозоны
