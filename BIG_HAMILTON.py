@@ -282,7 +282,7 @@ class Hamiltonian(Basis):
             data[s0:s0+R_bose] = sum(self.e_c*basis[i,0:m_c] + self.e_c*basis[i,(m_d+m_c):(m_d+2*m_c)]) + self.U_d*sum(basis[i,m_c:(m_d+m_c)]*basis[i,(m_d+2*m_c):2*(m_d+m_c)]) 
             for j in [neigbors_d_up.keys()[0], neigbors_d_up.keys()[-1]]:
                 for k in neigbors_d_up[j]:
-                    data[s0+i:s0+i+R_bose] += self.V_d*(basis[i,j]+basis[i,j+m_c+m_d])*(basis[i,k]+basis[i,k+m_c+m_d])
+                    data[s0:s0+R_bose] += self.V_d*(basis[i,j]+basis[i,j+m_c+m_d])*(basis[i,k]+basis[i,k+m_c+m_d])
             s0 += R_bose
         bar = progressbar.ProgressBar()
         for i in bar(range(R_bose)):
