@@ -170,7 +170,7 @@ class Hamiltonian(Basis):
                     if coef != 0:
                         line[s0: s0+R_bose*R_down] = range(i,i+R_bose*R_down)
                         col[s0: s0+R_bose*R_down] = range(index,index+R_bose*R_down)
-                        data[s0: s0+R_bose*R_down] = coef*self.V_cd[j-m_c]*self.sign(p,j,basis[i])
+                        data[s0: s0+R_bose*R_down] = coef*self.V_cd[p]*self.sign(p,j,basis[i])
                         s0+=R_bose*R_down
                                                     
                     # перескок с кластера на ванну
@@ -179,7 +179,7 @@ class Hamiltonian(Basis):
                     if coef != 0:
                         line[s0: s0+R_bose*R_down] = range(i,i+R_bose*R_down)
                         col[s0: s0+R_bose*R_down] = range(index,index+R_bose*R_down)
-                        data[s0: s0+R_bose*R_down] = coef*self.V_cd[j-m_c]*self.sign(p,j,basis[i])
+                        data[s0: s0+R_bose*R_down] = coef*self.V_cd[p]*self.sign(p,j,basis[i])
                         s0+=R_bose*R_down
         bar = progressbar.ProgressBar()
         s0 = np.where(data==0)[0][0]
@@ -194,7 +194,7 @@ class Hamiltonian(Basis):
                         for T in range(0,R_bose*R_up*R_down,R_bose*R_down):
                             line[s0: s0+R_bose] = range(i+T,i+T+R_bose)
                             col[s0: s0+R_bose] = range(index+T,index+T+R_bose)
-                            data[s0: s0+R_bose] = coef*self.V_cd[j-(2*m_c+m_d)]*self.sign(p,j,basis[i])
+                            data[s0: s0+R_bose] = coef*self.V_cd[p-(m_c+m_d)]*self.sign(p,j,basis[i])
                             s0 += R_bose                        
                     # перескок с кластера на ванну
                     coef, function = self.up_down(p,j,basis[i])
@@ -203,7 +203,7 @@ class Hamiltonian(Basis):
                         for T in range(0,R_bose*R_up*R_down,R_bose*R_down):
                             line[s0: s0+R_bose] = range(i+T,i+T+R_bose)
                             col[s0: s0+R_bose] = range(index+T,index+T+R_bose)
-                            data[s0: s0+R_bose] = coef*self.V_cd[j-(2*m_c+m_d)]*self.sign(p,j,basis[i])
+                            data[s0: s0+R_bose] = coef*self.V_cd[p-(m_c+m_d)]*self.sign(p,j,basis[i])
                             s0 += R_bose
         bar = progressbar.ProgressBar()
         print('Complete jumps from claster to fermi bath')
@@ -283,7 +283,7 @@ class Hamiltonian(Basis):
             for j in [neigbors_d_up.keys()[0], neigbors_d_up.keys()[-1]]:
                 for k in neigbors_d_up[j]:
                     data[s0:s0+R_bose] += self.V_d*(basis[i,j]+basis[i,j+m_c+m_d])*(basis[i,k]+basis[i,k+m_c+m_d])
-            s0 += R_bose
+            s0 += R_bose   
         bar = progressbar.ProgressBar()
         for i in bar(range(R_bose)):
             line[s0:s0+R_up*R_down] = range(i,i+R_up*R_down*R_bose,R_bose)
@@ -295,5 +295,6 @@ class Hamiltonian(Basis):
         line = np.delete(line, zeros)
         col = np.delete(col,zeros)
         data = np.delete(data,zeros)
+        R=data.shape[0]
         H = coo_matrix((data, (line, col)), shape=(R_up*R_down*R_bose,R_up*R_down*R_bose))    
         return H
